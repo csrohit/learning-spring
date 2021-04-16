@@ -1,6 +1,9 @@
 package io.csrohit.jpasearchpageable;
 
 import org.hibernate.NonUniqueResultException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +23,10 @@ public class EmployeeController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Employee>> getAllEmployees(){
-        return new ResponseEntity<List<Employee>>(employeeRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<?> getAllEmployees(){
+        Pageable pageable = PageRequest.of(0,2);
+        Page<Employee> employees = employeeRepository.findAll(pageable);
+        return new ResponseEntity<Page<Employee>>(employees, HttpStatus.OK);
     }
 
     @PostMapping("")
@@ -54,19 +59,20 @@ public class EmployeeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Employee>> search(@RequestParam String key, @RequestParam String value){
+    public ResponseEntity<?> search(@RequestParam String key, @RequestParam String value){
         ResponseEntity responseEntity = null;
-        List<Employee> employees;
+        Pageable pageable = PageRequest.of(0,2);
+        Page<Employee> employees = null;
         try{
             switch (key){
                 case "firstName":
-                    employees = employeeRepository.findByFirstNameContaining(value);
+                    employees = employeeRepository.findByFirstNameContaining(pageable, value);
                     break;
                 case "lastName":
-                    employees = employeeRepository.findByLastNameContaining(value);
+                    employees = employeeRepository.findByLastNameContaining(pageable, value);
                     break;
                 case "email":
-                    employees = employeeRepository.findByEmailContaining(value);
+                    employees = employeeRepository.findByEmailContaining(pageable,value);
                     break;
                 default:
                     return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
