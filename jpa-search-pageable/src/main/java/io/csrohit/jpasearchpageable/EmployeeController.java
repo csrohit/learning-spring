@@ -23,8 +23,11 @@ public class EmployeeController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getAllEmployees(){
-        Pageable pageable = PageRequest.of(0,2);
+    public ResponseEntity<?> getAllEmployees(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "2") int size
+    ){
+        Pageable pageable = PageRequest.of(page,size);
         Page<Employee> employees = employeeRepository.findAll(pageable);
         return new ResponseEntity<Page<Employee>>(employees, HttpStatus.OK);
     }
@@ -59,9 +62,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String key, @RequestParam String value){
+    public ResponseEntity<?> search(
+            @RequestParam String key,
+            @RequestParam String value,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "2") int size){
         ResponseEntity responseEntity = null;
-        Pageable pageable = PageRequest.of(0,2);
+        Pageable pageable = PageRequest.of(page,size);
         Page<Employee> employees = null;
         try{
             switch (key){
